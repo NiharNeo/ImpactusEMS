@@ -13,6 +13,8 @@ import { useFormFields } from "@/hooks/useFormFields";
 import { useCreateRegistration } from "@/hooks/useRegistrations";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { useReferralLeaderboard } from "@/hooks/useReferrals";
+import { Trophy, Medal, Award } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 import { sendRegistrationNotification } from "@/lib/notifications";
 import { generateGoogleCalendarUrl } from "@/lib/calendar";
@@ -68,6 +70,8 @@ const SuccessCard = ({ brandColor, event, registrationId }: { brandColor: string
       });
     }
   }, [registrationId]);
+
+  const { data: leaderboard } = useReferralLeaderboard(event.id);
 
   const referralLink = `${window.location.origin}/register/${event.slug}?ref=${referralCode}`;
   const [copied, setCopied] = useState(false);
@@ -126,30 +130,60 @@ const SuccessCard = ({ brandColor, event, registrationId }: { brandColor: string
               </div>
 
               {referralCode && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }} 
-                  animate={{ opacity: 1, y: 0 }}
-                  className="w-full mb-8 p-6 rounded-2xl bg-primary/5 border border-primary/10 text-center"
-                >
-                  <Zap className="w-6 h-6 mx-auto mb-2 text-primary" />
-                  <h3 className="text-sm font-bold mb-1">Invite Friends & Get Rewards! 🎁</h3>
-                  <p className="text-[10px] text-muted-foreground mb-4">Share your link. If 3 friends join, you win a surprise.</p>
-                  
-                  <div className="flex items-center gap-2 bg-background p-2 rounded-xl border border-border">
-                    <input 
-                      readOnly 
-                      value={referralLink} 
-                      className="flex-1 bg-transparent text-[9px] font-mono outline-none" 
-                    />
-                    <Button 
-                      onClick={handleCopy}
-                      className="h-8 px-3 text-[10px] rounded-lg text-white"
-                      style={{ backgroundColor: brandColor }}
-                    >
-                      {copied ? "Copied!" : "Copy Link"}
-                    </Button>
-                  </div>
-                </motion.div>
+                <div className="w-full space-y-6">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-6 rounded-2xl bg-primary/5 border border-primary/10 text-center"
+                  >
+                    <Zap className="w-6 h-6 mx-auto mb-2 text-primary" />
+                    <h3 className="text-sm font-bold mb-1">Invite Friends & Get Rewards! 🎁</h3>
+                    <p className="text-[10px] text-muted-foreground mb-4">Share your link. If 3 friends join, you win a surprise.</p>
+                    
+                    <div className="flex items-center gap-2 bg-background p-2 rounded-xl border border-border">
+                      <input 
+                        readOnly 
+                        value={referralLink} 
+                        className="flex-1 bg-transparent text-[9px] font-mono outline-none" 
+                      />
+                      <Button 
+                        onClick={handleCopy}
+                        className="h-8 px-3 text-[10px] rounded-lg text-white"
+                        style={{ backgroundColor: brandColor }}
+                      >
+                        {copied ? "Copied!" : "Copy Link"}
+                      </Button>
+                    </div>
+                  </motion.div>
+
+                  {/* Leaderboard Section */}
+                  {leaderboard && leaderboard.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 px-1">
+                        <Trophy className="w-4 h-4 text-yellow-500" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider">Top Promoters</h4>
+                      </div>
+                      <div className="space-y-2">
+                        {leaderboard.map((item, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border/50">
+                            <div className="flex items-center gap-3">
+                              <div className="w-6 h-6 flex items-center justify-center">
+                                {index === 0 ? <Medal className="w-5 h-5 text-yellow-500" /> : 
+                                 index === 1 ? <Medal className="w-5 h-5 text-gray-400" /> :
+                                 index === 2 ? <Medal className="w-5 h-5 text-amber-600" /> :
+                                 <span className="text-xs font-bold text-muted-foreground">#{index + 1}</span>}
+                              </div>
+                              <span className="text-sm font-medium">{item.name}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+                              <span className="text-[10px] font-bold text-primary">{item.count} Viral Points</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
 
               <div className="flex gap-2 w-full max-w-[400px] mx-auto">
