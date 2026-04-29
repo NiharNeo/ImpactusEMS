@@ -19,6 +19,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useIntegrations } from "@/hooks/useIntegrations";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 const steps = [
