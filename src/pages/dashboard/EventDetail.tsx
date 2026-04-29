@@ -4,8 +4,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useParams } from "react-router-dom";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, Trophy, Medal, Zap, Users } from "lucide-react";
 import { useEvent, useUpdateEvent, useDeleteEvent } from "@/hooks/useEvents";
+import { useReferralLeaderboard } from "@/hooks/useReferrals";
 import { useFormFields, useAddFormField, useDeleteFormField } from "@/hooks/useFormFields";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -76,6 +77,7 @@ const EventDetail = () => {
           <TabsTrigger value="branding" className="flex-1 sm:flex-initial rounded-full data-[state=active]:bg-card data-[state=active]:shadow-sm">Branding</TabsTrigger>
           <TabsTrigger value="form" className="flex-1 sm:flex-initial rounded-full data-[state=active]:bg-card data-[state=active]:shadow-sm">Reg. form</TabsTrigger>
           <TabsTrigger value="files" className="flex-1 sm:flex-initial rounded-full data-[state=active]:bg-card data-[state=active]:shadow-sm">Files</TabsTrigger>
+          <TabsTrigger value="promoters" className="flex-1 sm:flex-initial rounded-full data-[state=active]:bg-card data-[state=active]:shadow-sm">Promoters</TabsTrigger>
           <TabsTrigger value="settings" className="flex-1 sm:flex-initial rounded-full data-[state=active]:bg-card data-[state=active]:shadow-sm">Settings</TabsTrigger>
         </TabsList>
 
@@ -199,6 +201,10 @@ const EventDetail = () => {
           </div>
         </TabsContent>
 
+        <TabsContent value="promoters" className="mt-5">
+          <PromotersView eventId={event.id} />
+        </TabsContent>
+
         <TabsContent value="settings" className="mt-5">
           <div className="bg-card rounded-xl p-5 sm:p-6 space-y-4">
             <h3 className="font-display font-semibold">Event settings</h3>
@@ -220,6 +226,81 @@ const EventDetail = () => {
       </Tabs>
 
       <EventAttendeesTable eventId={event.id} />
+    </div>
+  );
+};
+
+const PromotersView = ({ eventId }: { eventId: string }) => {
+  const { data: leaderboard, isLoading } = useReferralLeaderboard(eventId);
+
+  if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-card p-6 rounded-2xl border border-border space-y-2">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <Users className="w-5 h-5 text-primary" />
+          </div>
+          <p className="text-sm text-muted-foreground font-medium">Total Promoters</p>
+          <h4 className="text-2xl font-bold">{leaderboard?.length || 0}</h4>
+        </div>
+        <div className="bg-card p-6 rounded-2xl border border-border space-y-2">
+          <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center">
+            <Trophy className="w-5 h-5 text-yellow-500" />
+          </div>
+          <p className="text-sm text-muted-foreground font-medium">Top Score</p>
+          <h4 className="text-2xl font-bold">{leaderboard?.[0]?.count || 0}</h4>
+        </div>
+        <div className="bg-card p-6 rounded-2xl border border-border space-y-2">
+          <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+            <Zap className="w-5 h-5 text-green-500" />
+          </div>
+          <p className="text-sm text-muted-foreground font-medium">Viral Growth</p>
+          <h4 className="text-2xl font-bold">
+            {leaderboard?.reduce((acc, curr) => acc + curr.count, 0) || 0}
+          </h4>
+        </div>
+      </div>
+
+      <div className="bg-card rounded-2xl border border-border overflow-hidden">
+        <div className="p-6 border-b border-border bg-muted/30">
+          <h3 className="font-display font-semibold">Promoter Leaderboard</h3>
+          <p className="text-xs text-muted-foreground mt-1">Attendees who are driving the most registrations.</p>
+        </div>
+        <div className="divide-y divide-border">
+          {leaderboard && leaderboard.length > 0 ? (
+            leaderboard.map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-8 h-8 flex items-center justify-center font-bold text-sm">
+                    {index === 0 ? <Medal className="w-6 h-6 text-yellow-500" /> : 
+                     index === 1 ? <Medal className="w-6 h-6 text-gray-400" /> :
+                     index === 2 ? <Medal className="w-6 h-6 text-amber-600" /> :
+                     index + 1}
+                  </div>
+                  <div>
+                    <p className="font-medium">{item.name}</p>
+                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-tighter">{item.referral_code}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="font-bold text-primary">
+                    {item.count} Viral Points
+                  </Badge>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="p-12 text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto opacity-50">
+                <Users className="w-6 h-6" />
+              </div>
+              <p className="text-sm text-muted-foreground">No viral growth detected yet. Referrals will show up here!</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
