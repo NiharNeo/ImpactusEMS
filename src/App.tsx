@@ -20,6 +20,7 @@ import Attendees from "./pages/dashboard/Attendees";
 import Analytics from "./pages/dashboard/Analytics";
 import Integrations from "./pages/dashboard/Integrations";
 import SettingsPage from "./pages/dashboard/SettingsPage";
+import Scanner from "./pages/dashboard/Scanner";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,6 +63,7 @@ const App = () => (
                       <Route path="analytics" element={<Analytics />} />
                       <Route path="integrations" element={<Integrations />} />
                       <Route path="settings" element={<SettingsPage />} />
+                      <Route path="scanner" element={<Scanner />} />
                     </Routes>
                   </DashboardLayout>
                 </ProtectedRoute>

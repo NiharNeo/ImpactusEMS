@@ -15,6 +15,7 @@ import EventDetailHeader from "@/components/event-detail/EventDetailHeader";
 import EventQuickInfo from "@/components/event-detail/EventQuickInfo";
 import EventAttendeesTable from "@/components/event-detail/EventAttendeesTable";
 import EventQRCode from "@/components/event-detail/EventQRCode";
+import EventFiles from "@/components/event-detail/EventFiles";
 
 const EventDetail = () => {
   const { id } = useParams();
@@ -74,6 +75,7 @@ const EventDetail = () => {
         <TabsList className="bg-muted rounded-full p-1 w-full sm:w-auto">
           <TabsTrigger value="branding" className="flex-1 sm:flex-initial rounded-full data-[state=active]:bg-card data-[state=active]:shadow-sm">Branding</TabsTrigger>
           <TabsTrigger value="form" className="flex-1 sm:flex-initial rounded-full data-[state=active]:bg-card data-[state=active]:shadow-sm">Reg. form</TabsTrigger>
+          <TabsTrigger value="files" className="flex-1 sm:flex-initial rounded-full data-[state=active]:bg-card data-[state=active]:shadow-sm">Files</TabsTrigger>
           <TabsTrigger value="settings" className="flex-1 sm:flex-initial rounded-full data-[state=active]:bg-card data-[state=active]:shadow-sm">Settings</TabsTrigger>
         </TabsList>
 
@@ -189,6 +191,11 @@ const EventDetail = () => {
                 <Button className="w-full rounded-full" disabled>Register now</Button>
               </div>
             </div>
+          </div>
+        </TabsContent>
+        <TabsContent value="files" className="mt-5">
+          <div className="bg-card rounded-xl p-5 sm:p-6">
+            <EventFiles event={event} />
           </div>
         </TabsContent>
 

@@ -6,8 +6,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Download, Loader2, ArrowUp, ArrowDown, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { useRegistrations, Registration } from "@/hooks/useRegistrations";
+import { useRegistrations, Registration, useUpdateRegistration } from "@/hooks/useRegistrations";
 import { useRegistrationStats } from "@/hooks/useRegistrations";
+import { toast } from "sonner";
 import { format } from "date-fns";
 
 const statusStyle: Record<string, string> = {
@@ -29,6 +30,18 @@ const Attendees = () => {
   const [selectedRegistration, setSelectedRegistration] = useState<Registration | null>(null);
   const { data: registrations, isLoading } = useRegistrations();
   const { data: stats } = useRegistrationStats();
+  const updateReg = useUpdateRegistration();
+
+  const handleCheckIn = async (id: string, currentStatus: string) => {
+    try {
+      const newStatus = currentStatus === "checked_in" ? "registered" : "checked_in";
+      await updateReg.mutateAsync({ id, status: newStatus });
+      toast.success(newStatus === "checked_in" ? "Attendee checked in!" : "Check-in undone.");
+      setSelectedRegistration(null);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update status");
+    }
+  };
 
   const eventOptions = useMemo(() => {
     const map = new Map<string, string>();
@@ -272,6 +285,25 @@ const Attendees = () => {
                     <span className="text-xs text-muted-foreground font-medium">Registered</span>
                     <span className="text-sm">{format(new Date(selectedRegistration.created_at), "MMM d, yyyy 'at' h:mm a")}</span>
                   </div>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    className="flex-1 rounded-full bg-success hover:bg-success/90"
+                    onClick={() => handleCheckIn(selectedRegistration.id, selectedRegistration.status)}
+                    disabled={updateReg.isPending}
+                  >
+                    {updateReg.isPending ? "Updating..." : selectedRegistration.status === "checked_in" ? "Undo Check-in" : "Check In"}
+                  </Button>
+                  {selectedRegistration.status !== "cancelled" && (
+                    <Button
+                      variant="outline"
+                      className="flex-1 rounded-full text-destructive hover:text-destructive"
+                      onClick={() => handleCheckIn(selectedRegistration.id, "cancelled")}
+                      disabled={updateReg.isPending}
+                    >
+                      Cancel
+                    </Button>
+                  )}
                 </div>
               </div>
             );

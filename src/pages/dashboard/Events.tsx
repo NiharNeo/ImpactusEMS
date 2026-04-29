@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Search, CalendarDays, Users, Loader2, MapPin, ExternalLink, LayoutGrid, List } from "lucide-react";
+import { Plus, Search, CalendarDays, Users, Loader2, MapPin, ExternalLink, LayoutGrid, List, CalendarPlus } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { useRegistrations } from "@/hooks/useRegistrations";
 import { format } from "date-fns";
+import { generateGoogleCalendarUrl } from "@/lib/calendar";
 
 const statusColors: Record<string, string> = {
   live: "bg-success text-success-foreground",
@@ -210,6 +211,24 @@ const Events = () => {
                       </Button>
                       <Button variant="outline" size="sm" className="text-xs rounded-full" asChild onClick={(e) => e.stopPropagation()}>
                         <Link to={`/dashboard/events/${event.id}`}>Manage</Link>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-xs rounded-full" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(generateGoogleCalendarUrl({
+                            name: event.name,
+                            description: event.description || "",
+                            location: event.location_value || "",
+                            event_date: event.event_date || new Date().toISOString(),
+                            event_end_date: event.event_end_date || undefined
+                          }), "_blank");
+                        }}
+                      >
+                        <CalendarPlus className="w-3 h-3 mr-1" />
+                        Sync
                       </Button>
                     </div>
                   </div>

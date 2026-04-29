@@ -54,6 +54,26 @@ export function useCreateRegistration() {
   });
 }
 
+export function useUpdateRegistration() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { data, error } = await supabase
+        .from("registrations")
+        .update({ status })
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["registrations"] });
+      qc.invalidateQueries({ queryKey: ["registration-stats"] });
+    },
+  });
+}
+
 export function useRegistrationStats() {
   return useQuery({
     queryKey: ["registration-stats"],

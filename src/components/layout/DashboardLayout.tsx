@@ -13,12 +13,14 @@ import {
   Settings,
   LogOut,
   Eye,
+  QrCode,
 } from "lucide-react";
 
 const navItems = [
   { title: "Events", url: "/dashboard/events", icon: CalendarDays },
   { title: "Attendees", url: "/dashboard/attendees", icon: Users },
   { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
+  { title: "Scanner", url: "/dashboard/scanner", icon: QrCode },
   { title: "Integrations", url: "/dashboard/integrations", icon: Puzzle },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];

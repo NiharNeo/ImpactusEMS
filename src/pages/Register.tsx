@@ -1,17 +1,20 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useParams } from "react-router-dom";
-import { CalendarDays, MapPin, Video, Globe, Loader2, CheckCircle2, Zap } from "lucide-react";
+import { CalendarDays, MapPin, Video, Globe, Loader2, CheckCircle2, Zap, CalendarPlus } from "lucide-react";
 import { useEventBySlug, Event } from "@/hooks/useEvents";
 import { useFormFields } from "@/hooks/useFormFields";
 import { useCreateRegistration } from "@/hooks/useRegistrations";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Tables } from "@/integrations/supabase/types";
+import { sendRegistrationNotification } from "@/lib/notifications";
+import { generateGoogleCalendarUrl } from "@/lib/calendar";
 
 type FormField = Tables<"form_fields">;
 
@@ -51,19 +54,99 @@ function formatEventDateTime(event: Event) {
 
 // ─── Extracted stable components ───
 
-const SuccessCard = ({ brandColor, eventName }: { brandColor: string; eventName: string }) => (
-  <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg mx-auto">
-    <Card className="border-border shadow-2xl">
-      <CardContent className="p-8 text-center">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.2 }}>
-          <CheckCircle2 className="w-16 h-16 mx-auto mb-4" style={{ color: brandColor }} />
-        </motion.div>
-        <h2 className="text-2xl font-display font-bold mb-2">You're Registered!</h2>
-        <p className="text-muted-foreground">Thank you for registering for <strong>{eventName}</strong>. You'll receive a confirmation email shortly.</p>
-      </CardContent>
-    </Card>
-  </motion.div>
-);
+const SuccessCard = ({ brandColor, event, registrationId }: { brandColor: string; event: Event; registrationId?: string }) => {
+  const eventName = event.name;
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (registrationId && canvasRef.current) {
+      QRCode.toCanvas(canvasRef.current, registrationId, {
+        margin: 2,
+        width: 400,
+        color: {
+          dark: "#000000",
+          light: "#ffffff",
+        },
+      }, (err) => {
+        if (err) console.error(err);
+        else {
+          const dataUrl = canvasRef.current?.toDataURL("image/png");
+          if (dataUrl) setQrDataUrl(dataUrl);
+        }
+      });
+    }
+  }, [registrationId]);
+
+  return (
+    <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg mx-auto">
+      {/* Hidden canvas for PNG generation */}
+      <canvas ref={canvasRef} style={{ display: "none" }} />
+      
+      <Card className="border-border shadow-2xl overflow-hidden">
+        <CardContent className="p-0">
+          <div className="p-8 text-center border-b border-border">
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.2 }}>
+              <CheckCircle2 className="w-16 h-16 mx-auto mb-4" style={{ color: brandColor }} />
+            </motion.div>
+            <h2 className="text-2xl font-display font-bold mb-2">You're Registered!</h2>
+            <p className="text-muted-foreground text-sm">Thank you for registering for <strong>{eventName}</strong>.</p>
+          </div>
+          
+          {qrDataUrl && (
+            <div className="p-8 bg-muted/30 flex flex-col items-center">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Your Check-in Pass</p>
+              <div className="bg-white p-4 rounded-2xl shadow-sm mb-6 border border-border">
+                <img src={qrDataUrl} alt="Check-in QR Code" className="w-48 h-48" />
+              </div>
+              <div className="flex gap-2 w-full max-w-[400px]">
+                <Button 
+                  variant="outline" 
+                  className="rounded-full flex-1"
+                  onClick={() => {
+                    if (!canvasRef.current) return;
+                    canvasRef.current.toBlob((blob) => {
+                      if (!blob) return;
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement("a");
+                      link.href = url;
+                      link.download = `nexus_pass_${registrationId?.slice(0, 8)}.png`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      URL.revokeObjectURL(url);
+                    }, "image/png");
+                  }}
+                >
+                  Download Pass
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="rounded-full flex-1"
+                  onClick={() => {
+                    window.open(generateGoogleCalendarUrl({
+                      name: event.name,
+                      description: event.description || "",
+                      location: event.location || "",
+                      event_date: event.event_date,
+                      event_end_date: event.event_end_date || undefined
+                    }), "_blank");
+                  }}
+                >
+                  <CalendarPlus className="w-4 h-4 mr-2" />
+                  Add to Calendar
+                </Button>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-4 text-center">
+                Show this QR code to the organizer at the entrance for instant check-in.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
 
 const EventInfo = ({ event, className = "" }: { event: Event; className?: string }) => {
   const [expanded, setExpanded] = useState(false);
@@ -171,7 +254,7 @@ const FlyerImage = ({ flyerUrl, eventName, className = "" }: { flyerUrl: string 
 
 const PoweredBy = () => (
   <p className="text-center text-xs text-muted-foreground mt-6">
-    Powered by <span className="font-semibold">eventspark</span>
+    Powered by <span className="font-semibold">Nexus</span>
   </p>
 );
 
@@ -185,6 +268,8 @@ const Register = () => {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [consent, setConsent] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [registrationId, setRegistrationId] = useState<string | undefined>();
+  const canvasRef = useRef<HTMLCanvasElement>(null); // Added for consistency if needed later
 
   const handleFieldChange = useCallback((label: string, value: string) => {
     setFormData(prev => ({ ...prev, [label]: value }));
@@ -223,8 +308,11 @@ const Register = () => {
       return;
     }
     try {
-      await createReg.mutateAsync({ event_id: event.id, data: formData });
+      const result = await createReg.mutateAsync({ event_id: event.id, data: formData });
+      setRegistrationId(result);
       setSubmitted(true);
+      // Trigger notification
+      sendRegistrationNotification(event.id, formData).catch(console.error);
     } catch (err: any) {
       toast.error(err.message || "Registration failed");
     }
@@ -255,7 +343,7 @@ const Register = () => {
   if (submitted) {
     return wrapDark(
       <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-background text-foreground" style={{ background: isDark ? undefined : `linear-gradient(135deg, ${brandColor}15, ${brandColor}05)` }}>
-        <SuccessCard brandColor={brandColor} eventName={event.name} />
+        <SuccessCard brandColor={brandColor} event={event} registrationId={registrationId} />
       </div>
     );
   }

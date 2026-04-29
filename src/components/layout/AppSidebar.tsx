@@ -6,6 +6,7 @@ import {
   Settings,
   LogOut,
   Eye,
+  QrCode,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,6 +31,7 @@ const navItems = [
   { title: "Events", url: "/dashboard/events", icon: CalendarDays },
   { title: "Attendees", url: "/dashboard/attendees", icon: Users },
   { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
+  { title: "Scanner", url: "/dashboard/scanner", icon: QrCode },
   { title: "Integrations", url: "/dashboard/integrations", icon: Puzzle },
 ];
 
@@ -56,11 +58,11 @@ export function AppSidebar() {
         <NavLink to="/dashboard/events" className="flex items-center gap-2" onClick={handleNavClick}>
           {!collapsed && (
             <span className="font-display text-lg font-bold text-sidebar-foreground">
-              eventspark
+              Nexus
             </span>
           )}
           {collapsed && (
-            <span className="font-display text-sm font-bold text-sidebar-foreground">ES</span>
+            <span className="font-display text-sm font-bold text-sidebar-foreground">N</span>
           )}
         </NavLink>
       </SidebarHeader>
