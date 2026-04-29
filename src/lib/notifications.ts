@@ -51,12 +51,35 @@ export async function sendRegistrationNotification(eventId: string, registration
     };
 
     // 4. Send to each active integration
-    const promises = integrations.map(integration => 
-      fetch(integration.webhook_url, {
+    const promises = integrations.map(integration => {
+      let payload = {};
+      
+      if (integration.platform.toLowerCase() === 'discord') {
+        // Discord Format
+        payload = {
+          content: `🎉 **New Registration for ${event.name}**`,
+          embeds: [{
+            title: "Attendee Details",
+            color: 5814783, // Nexus Blue
+            fields: [
+              { name: "Name", value: name, inline: true },
+              { name: "Email", value: email, inline: true },
+              { name: "Time", value: new Date().toLocaleString(), inline: false }
+            ],
+            footer: { text: "Nexus Event Management" }
+          }]
+        };
+      } else {
+        // Slack Format
+        payload = message;
+      }
+
+      return fetch(integration.webhook_url, {
         method: "POST",
-        body: JSON.stringify(message),
-      }).catch(err => console.error(`Failed to send to ${integration.platform}`, err))
-    );
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch(err => console.error(`Failed to send to ${integration.platform}`, err));
+    });
 
     await Promise.all(promises);
   } catch (err) {
