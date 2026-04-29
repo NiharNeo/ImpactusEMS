@@ -10,3 +10,4 @@ ALTER TABLE public.events
 
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS website text;
+ 

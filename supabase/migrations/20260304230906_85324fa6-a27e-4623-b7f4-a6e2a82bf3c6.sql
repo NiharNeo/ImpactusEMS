@@ -45,3 +45,4 @@ CREATE POLICY "Users can view own roles" ON public.user_roles AS PERMISSIVE FOR 
 -- EMAIL_TEMPLATES: drop restrictive and recreate as permissive
 DROP POLICY IF EXISTS "Users can manage email templates via event ownership" ON public.email_templates;
 CREATE POLICY "Users can manage email templates via event ownership" ON public.email_templates AS PERMISSIVE FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM events WHERE events.id = email_templates.event_id AND events.user_id = auth.uid()));
+ 

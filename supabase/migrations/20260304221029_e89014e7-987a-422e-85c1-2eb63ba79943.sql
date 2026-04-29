@@ -154,3 +154,4 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('event-assets', 'event-as
 CREATE POLICY "Anyone can view event assets" ON storage.objects FOR SELECT USING (bucket_id = 'event-assets');
 CREATE POLICY "Authenticated users can upload event assets" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'event-assets' AND auth.role() = 'authenticated');
 CREATE POLICY "Users can update own event assets" ON storage.objects FOR UPDATE USING (bucket_id = 'event-assets' AND auth.role() = 'authenticated');
+ 

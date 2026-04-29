@@ -15,3 +15,4 @@ AS $$
   WHERE event_id = p_event_id
     AND status != 'cancelled'::registration_status
 $$;
+ 

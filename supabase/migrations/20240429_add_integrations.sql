@@ -17,3 +17,4 @@ CREATE POLICY "Users can manage own integrations" ON public.integrations
   FOR ALL
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+ 

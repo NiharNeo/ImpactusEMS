@@ -9,3 +9,4 @@ CREATE POLICY "Users can update own event assets"
 CREATE POLICY "Users can delete own event assets"
   ON storage.objects FOR DELETE
   USING (bucket_id = 'event-assets' AND (owner)::uuid = auth.uid());
+ 

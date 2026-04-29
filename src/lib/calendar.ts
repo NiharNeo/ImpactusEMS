@@ -23,3 +23,4 @@ export function generateGoogleCalendarUrl(event: {
   return `${base}&text=${title}&dates=${start}/${end}&details=${details}&location=${location}`;
 }
  
+ 

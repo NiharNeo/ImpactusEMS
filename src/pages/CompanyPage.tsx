@@ -269,3 +269,4 @@ function EventListItem({ event, regCount }: { event: any; regCount?: number }) {
 
 export default CompanyPage;
  
+ 

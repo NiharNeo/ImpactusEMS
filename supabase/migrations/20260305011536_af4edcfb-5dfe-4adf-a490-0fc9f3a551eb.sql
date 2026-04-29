@@ -9,3 +9,4 @@ CREATE POLICY "Public can view company profiles by slug"
   FOR SELECT
   TO anon, authenticated
   USING (company_slug IS NOT NULL);
+ 

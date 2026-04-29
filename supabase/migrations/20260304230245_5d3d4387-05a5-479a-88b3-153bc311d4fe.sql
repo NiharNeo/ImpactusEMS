@@ -12,4 +12,4 @@ WITH CHECK (
     WHERE events.id = registrations.event_id
     AND events.status = 'live'::event_status
   )
-);
+); 
