@@ -10,7 +10,7 @@ import {
   HardDrive, Mail, Presentation, Users, MonitorSmartphone, FileText,
   Table2, MessageSquare, Send, Shield, Flame, Sheet, MessagesSquare,
   FileEdit, BookOpen, MailOpen, UserSearch, Mic, Search, Database,
-  ExternalLink,
+  ExternalLink, Video,
 } from "lucide-react";
 
 const connectors = [

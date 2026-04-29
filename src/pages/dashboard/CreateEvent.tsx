@@ -19,7 +19,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useIntegrations } from "@/hooks/useIntegrations";
-import { Video } from "lucide-react";
+
 
 const steps = [
   { number: 1, title: "Event Details", subtitle: "Name, date, location & description" },
