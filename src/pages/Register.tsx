@@ -117,17 +117,19 @@ const SuccessCard = ({ brandColor, event, registrationId }: { brandColor: string
           </div>
           
           {qrDataUrl && (
-            <div className="p-8 bg-muted/30 flex flex-col items-center">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Your Check-in Pass</p>
-              <div className="bg-white p-4 rounded-2xl shadow-sm mb-6 border border-border">
-                <img src={qrDataUrl} alt="Check-in QR Code" className="w-48 h-48" />
+            <div className="p-8 bg-muted/30">
+              <div className="flex flex-col items-center mb-8">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Your Check-in Pass</p>
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-border">
+                  <img src={qrDataUrl} alt="Check-in QR Code" className="w-48 h-48" />
+                </div>
               </div>
 
               {referralCode && (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }} 
                   animate={{ opacity: 1, y: 0 }}
-                  className="w-full mt-2 p-6 rounded-2xl bg-primary/5 border border-primary/10 text-center"
+                  className="w-full mb-8 p-6 rounded-2xl bg-primary/5 border border-primary/10 text-center"
                 >
                   <Zap className="w-6 h-6 mx-auto mb-2 text-primary" />
                   <h3 className="text-sm font-bold mb-1">Invite Friends & Get Rewards! 🎁</h3>
@@ -141,7 +143,7 @@ const SuccessCard = ({ brandColor, event, registrationId }: { brandColor: string
                     />
                     <Button 
                       onClick={handleCopy}
-                      className="h-8 px-3 text-[10px] rounded-lg"
+                      className="h-8 px-3 text-[10px] rounded-lg text-white"
                       style={{ backgroundColor: brandColor }}
                     >
                       {copied ? "Copied!" : "Copy Link"}
@@ -149,8 +151,8 @@ const SuccessCard = ({ brandColor, event, registrationId }: { brandColor: string
                   </div>
                 </motion.div>
               )}
-            </div>
-              <div className="flex gap-2 w-full max-w-[400px]">
+
+              <div className="flex gap-2 w-full max-w-[400px] mx-auto">
                 <Button 
                   variant="outline" 
                   className="rounded-full flex-1"
@@ -178,7 +180,7 @@ const SuccessCard = ({ brandColor, event, registrationId }: { brandColor: string
                     window.open(generateGoogleCalendarUrl({
                       name: event.name,
                       description: event.description || "",
-                      location: event.location || "",
+                      location: event.location_value || "",
                       event_date: event.event_date,
                       event_end_date: event.event_end_date || undefined
                     }), "_blank");
@@ -188,7 +190,7 @@ const SuccessCard = ({ brandColor, event, registrationId }: { brandColor: string
                   Add to Calendar
                 </Button>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-4 text-center">
+              <p className="text-[10px] text-muted-foreground mt-6 text-center">
                 Show this QR code to the organizer at the entrance for instant check-in.
               </p>
             </div>
