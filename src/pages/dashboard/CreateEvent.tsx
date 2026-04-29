@@ -638,7 +638,7 @@ const CreateEvent = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label className="text-sm text-muted-foreground">Meeting Link (Zoom, Google Meet, etc.)</Label>
-                        {zoomIntegration && (
+                        {zoomIntegration ? (
                           <button
                             type="button"
                             onClick={handleSyncZoom}
@@ -647,6 +647,14 @@ const CreateEvent = () => {
                             <Video className="w-3 h-3" />
                             ✨ Sync My Zoom
                           </button>
+                        ) : (
+                          <Link
+                            to="/dashboard/integrations"
+                            className="text-[10px] flex items-center gap-1 font-semibold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            ✨ Connect Zoom
+                          </Link>
                         )}
                       </div>
                       <Input placeholder="https://zoom.us/j/..." value={locationValue} onChange={e => setLocationValue(e.target.value)} />
