@@ -38,6 +38,7 @@ const connectors = [
   { id: "microsoft_onenote", name: "Microsoft OneNote", description: "Read and write notes", icon: BookOpen, category: "Productivity" },
   { id: "microsoft_outlook", name: "Microsoft Outlook", description: "Read, send, and manage emails", icon: MailOpen, category: "Email" },
   { id: "discord", name: "Discord", description: "Send real-time registration alerts to your Discord channels", icon: MessageSquare, category: "Communication" },
+  { id: "zoom", name: "Zoom", description: "Automatically attach meeting links to your virtual and hybrid events", icon: Video, category: "Communication" },
   { id: "ashby", name: "Ashby", description: "Recruiting and applicant tracking system", icon: UserSearch, category: "HR" },
 ];
 
