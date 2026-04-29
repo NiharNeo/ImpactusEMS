@@ -115,7 +115,9 @@ const CreateEvent = () => {
   const bulkInsertFields = useBulkInsertFormFields();
   const { data: profile } = useProfile();
   const { data: integrations } = useIntegrations();
-  const zoomIntegration = integrations?.find(i => i.platform === "zoom");
+  const zoomIntegration = Array.isArray(integrations) 
+    ? integrations.find(i => i.platform === "zoom") 
+    : null;
 
   const handleSyncZoom = () => {
     if (!zoomIntegration) {
