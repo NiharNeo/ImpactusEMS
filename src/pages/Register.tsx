@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,6 +56,28 @@ function formatEventDateTime(event: Event) {
 // ─── Extracted stable components ───
 
 const SuccessCard = ({ brandColor, event, registrationId }: { brandColor: string; event: Event; registrationId?: string }) => {
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (registrationId) {
+      // Fetch the referral code generated for this registration
+      import("@/integrations/supabase/client").then(({ supabase }) => {
+        supabase.from("registrations").select("referral_code").eq("id", registrationId).single().then(({ data }) => {
+          if (data) setReferralCode(data.referral_code);
+        });
+      });
+    }
+  }, [registrationId]);
+
+  const referralLink = `${window.location.origin}/register/${event.slug}?ref=${referralCode}`;
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(referralLink);
+    setCopied(true);
+    toast.success("Link copied! 🚀");
+    setTimeout(() => setCopied(false), 2000);
+  };
   const eventName = event.name;
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -99,6 +122,34 @@ const SuccessCard = ({ brandColor, event, registrationId }: { brandColor: string
               <div className="bg-white p-4 rounded-2xl shadow-sm mb-6 border border-border">
                 <img src={qrDataUrl} alt="Check-in QR Code" className="w-48 h-48" />
               </div>
+
+              {referralCode && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }} 
+                  animate={{ opacity: 1, y: 0 }}
+                  className="w-full mt-2 p-6 rounded-2xl bg-primary/5 border border-primary/10 text-center"
+                >
+                  <Zap className="w-6 h-6 mx-auto mb-2 text-primary" />
+                  <h3 className="text-sm font-bold mb-1">Invite Friends & Get Rewards! 🎁</h3>
+                  <p className="text-[10px] text-muted-foreground mb-4">Share your link. If 3 friends join, you win a surprise.</p>
+                  
+                  <div className="flex items-center gap-2 bg-background p-2 rounded-xl border border-border">
+                    <input 
+                      readOnly 
+                      value={referralLink} 
+                      className="flex-1 bg-transparent text-[9px] font-mono outline-none" 
+                    />
+                    <Button 
+                      onClick={handleCopy}
+                      className="h-8 px-3 text-[10px] rounded-lg"
+                      style={{ backgroundColor: brandColor }}
+                    >
+                      {copied ? "Copied!" : "Copy Link"}
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </div>
               <div className="flex gap-2 w-full max-w-[400px]">
                 <Button 
                   variant="outline" 
@@ -262,6 +313,8 @@ const PoweredBy = () => (
 
 const Register = () => {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const ref = searchParams.get("ref");
   const { data: event, isLoading: eventLoading } = useEventBySlug(slug);
   const { data: formFields, isLoading: fieldsLoading } = useFormFields(event?.id);
   const createReg = useCreateRegistration();
@@ -308,7 +361,10 @@ const Register = () => {
       return;
     }
     try {
-      const result = await createReg.mutateAsync({ event_id: event.id, data: formData });
+      const result = await createReg.mutateAsync({ 
+        event_id: event.id, 
+        data: { ...formData, referred_by: ref || undefined } 
+      });
       setRegistrationId(result);
       setSubmitted(true);
       // Trigger notification

@@ -44,6 +44,7 @@ export function useCreateRegistration() {
         .rpc("register_for_event", {
           p_event_id: event_id,
           p_data: data as unknown as Json,
+          p_referred_by: (data as any).referred_by || null
         });
       if (error) {
         throw error;
