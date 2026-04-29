@@ -18,7 +18,8 @@ import { useBulkInsertFormFields, useFormFields } from "@/hooks/useFormFields";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { motion, AnimatePresence } from "framer-motion";
+import { useIntegrations } from "@/hooks/useIntegrations";
+import { Video } from "lucide-react";
 
 const steps = [
   { number: 1, title: "Event Details", subtitle: "Name, date, location & description" },
@@ -113,6 +114,18 @@ const CreateEvent = () => {
   const updateEvent = useUpdateEvent();
   const bulkInsertFields = useBulkInsertFormFields();
   const { data: profile } = useProfile();
+  const { data: integrations } = useIntegrations();
+  const zoomIntegration = integrations?.find(i => i.platform === "zoom");
+
+  const handleSyncZoom = () => {
+    if (!zoomIntegration) {
+      toast.error("Connect your Zoom account in the Integrations tab first!");
+      return;
+    }
+    const val = zoomIntegration.webhook_url;
+    setLocationValue(val);
+    toast.success("Zoom link synced! 🎥");
+  };
 
   // Pre-populate form in edit mode
   useEffect(() => {
@@ -623,7 +636,19 @@ const CreateEvent = () => {
                   </div>
                   {(locationType === "virtual" || locationType === "hybrid") && (
                     <div className="space-y-2">
-                      <Label className="text-sm text-muted-foreground">Meeting Link (Zoom, Google Meet, etc.)</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm text-muted-foreground">Meeting Link (Zoom, Google Meet, etc.)</Label>
+                        {zoomIntegration && (
+                          <button
+                            type="button"
+                            onClick={handleSyncZoom}
+                            className="text-[10px] flex items-center gap-1 font-semibold uppercase tracking-wider text-primary hover:opacity-80 transition-opacity"
+                          >
+                            <Video className="w-3 h-3" />
+                            ✨ Sync My Zoom
+                          </button>
+                        )}
+                      </div>
                       <Input placeholder="https://zoom.us/j/..." value={locationValue} onChange={e => setLocationValue(e.target.value)} />
                     </div>
                   )}

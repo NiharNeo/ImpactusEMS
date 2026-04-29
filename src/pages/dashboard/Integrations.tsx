@@ -59,7 +59,7 @@ const Integrations = () => {
   const [webhookUrl, setWebhookUrl] = useState("");
 
   const handleConnectClick = (id: string, name: string) => {
-    if (id !== "slack" && id !== "discord") {
+    if (id !== "slack" && id !== "discord" && id !== "zoom") {
       toast.info(`To connect ${name}, go to your Lovable project Settings → Connectors and set it up there.`, {
         duration: 6000,
       });
@@ -167,16 +167,22 @@ const Integrations = () => {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="webhook">Webhook URL</Label>
+              <Label htmlFor="webhook">{selectedPlatform?.id === 'zoom' ? 'Zoom Link / Personal ID' : 'Webhook URL'}</Label>
               <Input
                 id="webhook"
-                placeholder={selectedPlatform?.id === "slack" ? "https://hooks.slack.com/services/..." : "https://discord.com/api/webhooks/..."}
+                placeholder={
+                  selectedPlatform?.id === "slack" ? "https://hooks.slack.com/services/..." : 
+                  selectedPlatform?.id === "discord" ? "https://discord.com/api/webhooks/..." :
+                  "https://zoom.us/j/your-id-here"
+                }
                 value={webhookUrl}
                 onChange={(e) => setWebhookUrl(e.target.value)}
                 className="rounded-xl"
               />
               <p className="text-[10px] text-muted-foreground italic">
-                Tip: For Discord, you can append "/slack" to your webhook URL to use the Slack-compatible format.
+                {selectedPlatform?.id === 'zoom' 
+                  ? "Nexus will automatically direct virtual attendees to this link." 
+                  : "Tip: For Discord, you can append '/slack' to your webhook URL to use the Slack-compatible format."}
               </p>
             </div>
           </div>
