@@ -63,3 +63,4 @@ export async function sendRegistrationNotification(eventId: string, registration
     console.error("Notification error:", err);
   }
 }
+ 

@@ -107,3 +107,4 @@ export function useDeleteEvent() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["events"] }),
   });
 }
+ 

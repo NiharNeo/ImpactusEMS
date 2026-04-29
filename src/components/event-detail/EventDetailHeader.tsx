@@ -103,3 +103,4 @@ export default function EventDetailHeader({ event, onStatusChange }: Props) {
     </div>
   );
 }
+ 

@@ -22,3 +22,4 @@ export function Logo({ size = "md", className = "" }: LogoProps) {
     </span>
   );
 }
+ 

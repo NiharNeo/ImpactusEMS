@@ -48,3 +48,4 @@ export function usePublicRegistrationCounts(eventIds: string[]) {
     enabled: eventIds.length > 0,
   });
 }
+ 

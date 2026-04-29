@@ -182,3 +182,4 @@ export default function EventAttendeesTable({ eventId }: { eventId: string }) {
     </div>
   );
 }
+ 

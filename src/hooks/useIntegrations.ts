@@ -59,3 +59,4 @@ export function useDeleteIntegration() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["integrations"] }),
   });
 }
+ 

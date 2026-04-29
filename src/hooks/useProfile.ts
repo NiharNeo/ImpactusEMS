@@ -30,3 +30,4 @@ export function useUpdateProfile() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["profile"] }),
   });
 }
+ 

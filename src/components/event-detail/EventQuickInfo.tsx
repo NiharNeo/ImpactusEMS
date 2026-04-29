@@ -181,3 +181,4 @@ export default function EventQuickInfo({ event, onUpdate }: Props) {
     </div>
   );
 }
+ 
